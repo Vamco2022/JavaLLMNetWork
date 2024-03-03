@@ -1,13 +1,11 @@
-# Java LLM NetWork
+# JavaNetwork
 
-This is a java project what the LLM network, The all are the source code file, write by me. But I should overwrite it, so you only see a old file "AND_Network.java" in here now.(Has bugs and not finish)
+A lib about the network in java made by me. though me rewrite the new version, but I'm don't know how to train the network.
 
-# Why the project must overwrite?
+So I can't to write the code about the function train.
 
-The old file is write on Oct. 2023, then I relax long time not to write it, so I forgot the all code means of the old main file, I must overwirte it.
+If who can help me to write that,I will thank it very much.
 
-# When am I overwirte it finish?
+# About that function train
 
-Maybe between the May. 2024 and Oct. 2024, Because I need study the LLM again.
-
-It's New Year now, I have to relax, So now I'm not do it.
+I'm learning that... I feel understand the DP and the FP have a few hard, but I'm trying.
