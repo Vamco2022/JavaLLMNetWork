@@ -3,6 +3,7 @@ import java.util.Random;
 
 public class network {
     public node[][] layers;
+    public node[] outputLayers;
     public double[] input;
     public double[] output;
     public ArrayList<double[]> goalInput;
@@ -15,6 +16,7 @@ public class network {
         this.output = new double[output];
         this.goalInput = new ArrayList<>();
         this.goalOutput = new ArrayList<>();
+        this.outputLayers = new node[output];
         this.learn = learn;
     }
 
@@ -31,7 +33,11 @@ public class network {
         }
         //layer - output network
         for (int i = 0;i < this.layers[this.layers.length - 1].length;i++){
-            this.layers[this.layers.length - 1][i] = new node(this.layers[this.layers.length - 2].length, 1);
+            this.layers[this.layers.length - 1][i] = new node(this.layers[this.layers.length - 2].length, this.outputLayers.length);
+        }
+        //output layer
+        for (int i = 0;i <this.outputLayers.length;i++){
+            this.outputLayers[i] = new node(this.layers[this.layers.length - 1].length,1);
         }
     }
 
@@ -50,7 +56,7 @@ public class network {
             for (int y = 0;y < this.layers[x].length;y++){
                 double[] nodeInput = new double[this.layers[x - 1].length];
                 for (int i = 0;i < this.layers[x - 1].length;i++){
-                    nodeInput[i] = this.layers[x - 1][i].outputValue[i * y];
+                    nodeInput[i] = this.layers[x - 1][i].outputValue[y];
                 }
                 this.layers[x][y].getNodeReturn(nodeInput);
             }
@@ -59,22 +65,21 @@ public class network {
         for (int i = 0;i < this.layers[this.layers.length - 1].length;i++){
             double[] nodeInput = new double[this.layers[this.layers.length - 1].length];
             for (int a = 0;a < this.layers[this.layers.length - 2].length;a++){
-                nodeInput[a] = this.layers[this.layers.length - 2][a].outputValue[a * i];
+                nodeInput[a] = this.layers[this.layers.length - 2][a].outputValue[i];
             }
             this.layers[this.layers.length - 1][i].getNodeReturn(nodeInput);
         }
-//        //get output return list
-//        double[] output = new double[this.output.length];
-//        for (int i = 0;i < this.output.length;i++){
-//            double outputSum = 0;
-//            for (int a = 0; a < this.layers[this.layers.length - 1].length;a++){
-//                outputSum += this.layers[this.layers.length - 1][a].outputValue[i];
-//            }
-//            output[i] = outputSum;
-//        }
+        for (int i = 0;i < this.outputLayers.length;i++){
+            double[] nodeInput = new double[this.layers[this.layers.length - 1].length];
+            for (int a = 0;a < this.layers[this.layers.length - 1].length;a++){
+                nodeInput[a] = this.layers[this.layers.length - 1][a].outputValue[i];
+            }
+            this.outputLayers[i].getNodeReturn(nodeInput);
+        }
+        //get output return list
         double[] output = new double[this.output.length];
         for (int i = 0;i < this.output.length;i++){
-            output[i] = this.layers[this.layers.length - 1][i].outputValue[0];
+            output[i] = this.outputLayers[i].outputValue[0];
         }
         return output;
     }
@@ -94,23 +99,28 @@ public class network {
 
     private void bfTrain(double[] returnError,double[] testInput){
         double[][] errorPerNode = new double[this.layers.length][];
+        double[] errorPerOutput = new double[this.outputLayers.length];
         for (int i = 0;i < this.layers.length;i++){
             errorPerNode[i] = new double[this.layers[i].length];
+        }
+        //output layer error
+        for (int i = 0;i < this.outputLayers.length;i++){
+            errorPerOutput[i] = returnError[i];
         }
         //output - layer error
         for (int i = 0; i < this.layers[this.layers.length - 1].length;i++){
             double errorSum = 0;
             for (int a = 0;a < returnError.length;a++){
-                errorSum += returnError[a] * this.layers[this.layers.length - 2][i].outputW[a];
+                errorSum += errorPerOutput[a] * this.layers[this.layers.length - 1][i].inputW[a];
             }
             errorPerNode[this.layers.length - 1][i] = errorSum;
         }
         //layer - layer error (background)
-        for (int x = this.layers.length - 2;x > 0;x--){
+        for (int x = this.layers.length - 2;x >= 0;x--){
             for (int y = 0;y < this.layers[x].length;y++){
                 double errorSum = 0;
-                for (int a = 0; a < this.layers[x - 1].length;a++){
-                    errorSum += errorPerNode[x + 1][y] * this.layers[x][y].outputW[a];
+                for (int a = 0; a < this.layers[x].length;a++){
+                    errorSum += errorPerNode[x + 1][y] * this.layers[x + 1][y].inputW[a];
                 }
                 errorPerNode[x][y] = errorSum;
             }
@@ -131,6 +141,14 @@ public class network {
                     double output = this.layers[x - 1][y].outputValue[a];
                     this.layers[x][y].inputW[a] += (this.learn * error * activeFunction.sigmoidDerivative(output));
                 }
+            }
+        }
+        //output layer
+        for (int x = 0;x < this.outputLayers.length;x++){
+            double error = errorPerOutput[x];
+            for (int a = 0;a < this.layers[this.layers.length - 1].length;a++){
+                double output = this.layers[this.layers.length - 1][a].outputValue[a];
+                this.outputLayers[x].inputW[a] += (this.learn * error * activeFunction.sigmoidDerivative(output));
             }
         }
     }

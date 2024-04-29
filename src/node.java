@@ -19,9 +19,9 @@ public class node {
             this.inputW[i] = random.nextDouble(-5,5);
         }
         for (int i = 0;i < this.outputW.length;i++){
-            this.outputW[i] = random.nextDouble(-5,5);
+            this.outputW[i] = 1;
         }
-        this.p = random.nextDouble(-5,5);
+        this.p = 0;
     }
 
     public double[] getNodeReturn(double[] input){
