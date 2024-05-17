@@ -94,11 +94,11 @@ public class network {
             double[] testTrueOutput = this.outputGoalList.get(randomDataID);
             double[] testOutput = run(testInput);
             double[] loss = getLoss(testTrueOutput, testOutput);
-            double lossAll = networkMath.getAVG(loss);
+            double lossAll = networkMath.getSUM(loss);
             bf(testTrueOutput, testOutput);
             long et = System.currentTimeMillis();
             long speed;
-            if (et == st) speed = 100000;
+            if (et == st) speed = 100000000;
             else speed = (1000 / (et - st));
             System.out.println("testData: " + Arrays.toString(testInput) + ", trueOutput: " + Arrays.toString(testTrueOutput) + ", testOutput: " + Arrays.toString(testOutput));
             System.out.println("Loss: " + lossAll + ", use time: " + (et - st) + "ms, speed: " + speed + "t/s");
@@ -119,14 +119,42 @@ public class network {
                 double[] testTrueOutput = this.outputGoalList.get(a);
                 double[] testOutput = run(testInput);
                 double[] loss = getLoss(testTrueOutput, testOutput);
-                lossAll += networkMath.getAVG(loss);
+                lossAll += networkMath.getSUM(loss);
                 bf(testTrueOutput, testOutput);
             }
             et = System.currentTimeMillis();
-            if (et == st) speed = 100000;
+            if (et == st) speed = 100000000;
             else speed = (1000 / (et - st));
             lossAll = lossAll / this.inputGoalList.size();
             System.out.println("Loss: " + lossAll + ", use time: " + (et - st) + "ms, speed: " + speed + "t/s");
+            System.out.println("-----------------------------------------------");
+            System.out.println();
+        }
+    }
+
+    public void trainSTD(int step,int spd){
+        double lossAll = 0;
+        long st,et,speed;
+        for (int i = 0;i < step;i++){
+            System.out.println("Train: step " + i + ":");
+            lossAll = 0;
+            st = System.currentTimeMillis();
+            for (int s = 0;s < spd;s++) {
+                double lossPerData = 0;
+                for (int a = 0; a < this.inputGoalList.size(); a++) {
+                    double[] testInput = this.inputGoalList.get(a);
+                    double[] testTrueOutput = this.outputGoalList.get(a);
+                    double[] testOutput = run(testInput);
+                    double[] loss = getLoss(testTrueOutput, testOutput);
+                    lossPerData += networkMath.getSUM(loss);
+                    bf(testTrueOutput, testOutput);
+                }
+                lossAll += (lossPerData / spd);
+            }
+            et = System.currentTimeMillis();
+            if (et == st) speed = 100000000;
+            else speed = (1000 / (et - st));
+            System.out.println("Loss: " + lossAll  +", use time " + (et - st) + "ms, speed: " + speed + "t/s");
             System.out.println("-----------------------------------------------");
             System.out.println();
         }

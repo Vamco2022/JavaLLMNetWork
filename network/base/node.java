@@ -25,6 +25,6 @@ public class node {
         for (int i = 0;i < this.inputW.length;i++){
             this.nodeData += this.inputW[i] * input[i];
         }
-        this.nodeData = activeFunction.sigmoid(this.nodeData);
+        this.nodeData = activeFunction.sigmoid( this.nodeData);
     }
 }

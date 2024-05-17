@@ -9,4 +9,12 @@ public class networkMath {
         i = i / v.length;
         return i;
     }
+
+    public static double getSUM(double[] v){
+        double i = 0;
+        for (double e : v){
+            i += e;
+        }
+        return i;
+    }
 }
